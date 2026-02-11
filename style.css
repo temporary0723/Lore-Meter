@@ -1,0 +1,237 @@
+/* ============================================ */
+/* Lore Meter Extension Styles */
+/* ============================================ */
+
+/* Heart icon styles */
+.charanalysis-heart-stats-icon {
+    color: #ff6b9d !important;
+}
+
+.charanalysis-heart-stats-icon:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Scrollbar styles for statistics modal */
+#charanalysis-stats-content::-webkit-scrollbar,
+#charanalysis-analysis-result::-webkit-scrollbar {
+    width: 8px;
+}
+
+#charanalysis-stats-content::-webkit-scrollbar-track,
+#charanalysis-analysis-result::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#charanalysis-stats-content::-webkit-scrollbar-thumb,
+#charanalysis-analysis-result::-webkit-scrollbar-thumb {
+    background: rgba(138, 180, 248, 0.5);
+    border-radius: 4px;
+}
+
+#charanalysis-stats-content::-webkit-scrollbar-thumb:hover,
+#charanalysis-analysis-result::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 180, 248, 0.7);
+}
+
+/* Scrollbar styles for analysis result modal */
+#charanalysis-analysis-result-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#charanalysis-analysis-result-modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#charanalysis-analysis-result-modal-content::-webkit-scrollbar-thumb {
+    background: rgba(138, 180, 248, 0.5);
+    border-radius: 4px;
+}
+
+#charanalysis-analysis-result-modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 180, 248, 0.7);
+}
+
+/* Firefox scrollbar support */
+#charanalysis-stats-content,
+#charanalysis-analysis-result {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(138, 180, 248, 0.5) rgba(255, 255, 255, 0.1);
+}
+
+/* Analysis result styling */
+#charanalysis-analysis-result {
+    cursor: default;
+}
+
+#charanalysis-analysis-result[title] {
+    cursor: pointer;
+}
+
+/* Chat selection modal styles */
+.charanalysis-chat-checkbox {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.charanalysis-chat-label {
+    user-select: none;
+}
+
+/* Button hover effects */
+#charanalysis-analyze-button-auto,
+#charanalysis-analyze-button-manual,
+#charanalysis-analyze-button-settings {
+    transition: all 0.3s ease;
+}
+
+#charanalysis-analyze-button-auto:disabled,
+#charanalysis-analyze-button-manual:disabled,
+#charanalysis-analyze-button-settings:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Model select styling */
+#charanalysis-analysis-model {
+    transition: all 0.2s ease;
+}
+
+#charanalysis-analysis-model:focus {
+    outline: none;
+    border-color: rgba(138, 180, 248, 0.6);
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+}
+
+/* Settings modal radio button styling */
+input[name="analysis-mode"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+#charanalysis-label-1st,
+#charanalysis-label-3rd {
+    transition: all 0.2s ease;
+}
+
+/* Textarea styling */
+#charanalysis-prompt-1st-textarea,
+#charanalysis-prompt-3rd-textarea {
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+#charanalysis-prompt-1st-textarea:focus,
+#charanalysis-prompt-3rd-textarea:focus {
+    outline: none;
+    border-color: rgba(138, 180, 248, 0.6);
+}
+
+/* Checkbox styling */
+#charanalysis-include-desc {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+/* Chat list scrollbar */
+#chat-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chat-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+#chat-list::-webkit-scrollbar-thumb {
+    background: rgba(138, 180, 248, 0.4);
+    border-radius: 4px;
+}
+
+#chat-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 180, 248, 0.6);
+}
+
+/* Loading animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.charanalysis-loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #charanalysis-stats-content {
+        max-height: 60vh;
+    }
+    
+    #charanalysis-analysis-result {
+        max-height: 300px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .charanalysis-heart-stats-icon {
+        display: none;
+    }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    #charanalysis-analysis-model {
+        background: rgba(255, 255, 255, 0.08);
+    }
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+    #charanalysis-stats-content::-webkit-scrollbar-track,
+    #charanalysis-analysis-result::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+    
+    #charanalysis-stats-content::-webkit-scrollbar-thumb,
+    #charanalysis-analysis-result::-webkit-scrollbar-thumb {
+        background: rgba(138, 180, 248, 0.6);
+    }
+}
+
+/* Accessibility improvements */
+.charanalysis-heart-stats-icon:focus {
+    outline: 2px solid #ff6b9d;
+    outline-offset: 2px;
+}
+
+button:focus-visible {
+    outline: 2px solid rgba(138, 180, 248, 0.8);
+    outline-offset: 2px;
+}
+
+/* Animation for modal appearance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.charanalysis-modal-content {
+    animation: fadeIn 0.3s ease-out;
+}

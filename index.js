@@ -1388,6 +1388,7 @@ async function showAnalysisSettingsModal() {
         cancelButton: '취소',
         wide: true,
         large: true,
+        allowVerticalScrolling: true
     });
     
     // Variables to store values - initialize with current values

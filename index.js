@@ -1744,16 +1744,18 @@ ${character.description}
 ---`;
         }
         
-        const analysisPrompt = `${basePrompt}${descriptionSection}
-
----
+        const analysisPrompt = `여기에 ${characterName}를 주인공으로 만들어진 다양한 평행세계 속 이야기들이 있습니다.
 
 채팅 데이터:
 
 ${chatSummaries.map((chat, idx) => `
 === 이야기 #${idx + 1}: ${chat.fileName} (${chat.messageCount}개 메시지) ===
 ${chat.content}
-`).join('\n\n')}`;
+`).join('\n\n')}
+
+---
+
+${basePrompt}${descriptionSection}`;
 
         // Calculate approximate token usage
         const estimatedPromptTokens = Math.ceil(analysisPrompt.length / 4);

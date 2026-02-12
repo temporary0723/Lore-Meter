@@ -668,21 +668,32 @@ function formatStatisticsHTML(stats, character, characterId) {
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label style="font-size: 0.9em; color: #aaa; white-space: nowrap;">AI 모델:</label>
-                        <select id="charanalysis-analysis-model" style="
-                            padding: 8px 12px;
-                            border-radius: 6px;
-                            background: rgba(255, 255, 255, 0.08);
-                            border: 1px solid rgba(138, 180, 248, 0.3);
-                            color: #ddd;
-                            font-size: 0.88em;
-                            cursor: pointer;
-                            height: 36px;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(138, 180, 248, 0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(138, 180, 248, 0.3)';">
-                            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
-                            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-                            <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
-                        </select>
+                        <input 
+                            type="text" 
+                            id="charanalysis-analysis-model" 
+                            list="charanalysis-model-list"
+                            value="gemini-2.5-flash"
+                            placeholder="모델명 입력 또는 선택"
+                            style="
+                                padding: 8px 12px;
+                                border-radius: 6px;
+                                background: rgba(255, 255, 255, 0.08);
+                                border: 1px solid rgba(138, 180, 248, 0.3);
+                                color: #ddd;
+                                font-size: 0.88em;
+                                height: 36px;
+                                flex: 1;
+                                transition: all 0.2s ease;
+                            " 
+                            onmouseover="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(138, 180, 248, 0.5)';" 
+                            onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(138, 180, 248, 0.3)';"
+                            onfocus="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(138, 180, 248, 0.5)';"
+                            onblur="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(138, 180, 248, 0.3)';"
+                        >
+                        <datalist id="charanalysis-model-list">
+                            <option value="gemini-2.5-flash">
+                            <option value="gemini-3-flash-preview">
+                        </datalist>
                     </div>
                     
                     <div style="display: flex; gap: 8px;">

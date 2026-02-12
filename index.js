@@ -1802,8 +1802,6 @@ async function analyzeCharacter(characterId, avatarUrl, mode = 'auto', selectedC
         if (settings.includeCharacterDescription !== false && character?.description) {
             descriptionSection = `
 
----
-
 ## 캐릭터 정보
 
 **이름:** ${characterName}
@@ -1811,11 +1809,12 @@ async function analyzeCharacter(characterId, avatarUrl, mode = 'auto', selectedC
 **Description:**
 ${character.description}
 
----`;
+---
+`;
         }
         
         const analysisPrompt = `여기에 ${characterName}를 주인공으로 만들어진 다양한 평행세계 속 이야기들이 있습니다.
-
+${descriptionSection}
 채팅 데이터:
 
 ${chatSummaries.map((chat, idx) => `
@@ -1825,7 +1824,7 @@ ${chat.content}
 
 ---
 
-${basePrompt}${descriptionSection}`;
+${basePrompt}`;
 
         // Calculate approximate token usage
         const estimatedPromptTokens = Math.ceil(analysisPrompt.length / 4);

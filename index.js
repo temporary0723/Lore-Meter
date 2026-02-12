@@ -14,9 +14,10 @@ const {
 const MODULE_NAME = 'loreMeter';
 
 const defaultSettings = {
-    analysisMode: '1st-person', // '1st-person' or '3rd-person'
+    analysisMode: '1st-person', // '1st-person', '3rd-person', or 'community'
     analysisPrompt1stPerson: '', // Will be set with default later
     analysisPrompt3rdPerson: '', // Will be set with default later
+    analysisPromptCommunity: '', // Will be set with default later
     includeCharacterDescription: true, // Include character description in analysis
     usePrefill: true, // Use prefill for assistant response
     prefillText: '네 알겠습니다. 다음은 제공된 모든 이야기 데이터를 분석하여 작성한 요청하신 콘텐츠입니다.\n---', // Prefill text
@@ -89,6 +90,29 @@ function getCurrentCharacterId() {
  * Adds a heart icon to the character menu that shows statistics modal.
  */
 function initCharacterStatistics() {
+    // Add CSS to prevent outline/border on heart icon
+    if (!document.getElementById('charanalysis-heart-icon-style')) {
+        const style = document.createElement('style');
+        style.id = 'charanalysis-heart-icon-style';
+        style.textContent = `
+            .charanalysis-heart-stats-icon {
+                outline: none !important;
+                box-shadow: none !important;
+            }
+            .charanalysis-heart-stats-icon:focus {
+                outline: none !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .charanalysis-heart-stats-icon:active {
+                outline: none !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
     // Observer to detect when character menu appears
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -128,7 +152,7 @@ function addHeartIconToCharacterMenu(container) {
     const heartIcon = document.createElement('div');
     heartIcon.className = 'menu_button fa-solid fa-heart interactable charanalysis-heart-stats-icon';
     heartIcon.title = 'Character Statistics & Analysis';
-    heartIcon.style.cssText = 'color: #ff6b9d;';
+    heartIcon.style.cssText = 'color: #ff6b9d; outline: none !important; box-shadow: none !important;';
     
     heartIcon.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -1169,6 +1193,46 @@ function getDefault1stPersonPrompt() {
 }
 
 /**
+ * Get default community analysis prompt.
+ */
+function getDefaultCommunityPrompt() {
+    return `이제 이 이야기들을 다루는 전용 커뮤니티 게시판이 있다고 가정하겠습니다. 그곳에서 인기 있는 게시글들과 댓글들을 적어 보세요.
+
+## 작성 시 참고사항:
+- 글 5개 이상을 출력하고 각 글마다 댓글을 10개이상 출력하세요.
+- 주인공 캐릭터는 {characterName}입니다.
+- 이 곳의 모든 유저들은 주인공을 중심으로 벌어지는 모든 평행우주의 각각의 세계관 속 이야기들을 전부 읽었습니다.
+- 유저들은 제각각의 취향을 가지고있으며 각자 좋아하는 이야기는 다를 수 있습니다.
+- 유독 특별히 인기 넘치는 스토리들도 존재할 수 있습니다.
+- 인기많은 스토리들은 각각의 팬덤이 존재하며 그들은 기싸움을 할 수 있습니다. (럽라 싸움도 포함되어야합니다.)
+- 그들은 인물들의 외모나 신체부위에 감탄하거나 그들의 실감나는 행동에 설렐 수도 있습니다.
+- 인물들의 감정선이나 찐사, 섹텐 시점에 대해 토론할 수도 있습니다.
+- 물론 섹스씬에 집착하는 사람들도 있습니다.
+- 눈썰미 좋은 사람들은 각 평행우주 세계관 속 이야기들 사이에서 연결점을 찾아내기도 합니다.
+- 모든 개별적 이야기들을 일일히 분석하지 말고, 전반적인 경향성을 파악하여 유사한 유형별로 나눠서 살펴보세요.
+- 구체적으로 분석하되 이야기의 번호를 나열하거나 언급하지 말고 각 유형에 직관적인 이름을 붙여서 언급하세요.
+- 모든 이야기들은 전부 각각 다른 세계관에서 벌어진 별개의 평행세계인점을 유의하세요.
+- 게시글마다 특정 스토리에 대한 감상을 적지말고 각 평행우주 속 세계관끼리의 비교에 비중을 두세요.
+- 한국의 온라인 커뮤니티 톤을 반영하세요.
+- 한글로 출력하고 존댓말을 사용하지마세요.
+
+## 형식:
+- 글 제목과 닉네임은 **굵게** 표시
+- 각 게시글은 ##으로 시작
+- 각 댓글은 별표(*)를 사용하지 말고 하이픈(-)을 사용하세요.
+- **절대로 표(table) 형식을 사용하지 마세요** (|, markdown table 금지)
+
+출력 형식:
+## 게시글 1
+
+**제목**
+본문
+- **닉네임:** 댓글 내용
+- **닉네임:** 댓글 내용
+...`;
+}
+
+/**
  * Show analysis settings modal to configure analysis mode and prompts.
  */
 async function showAnalysisSettingsModal() {
@@ -1180,6 +1244,9 @@ async function showAnalysisSettingsModal() {
     }
     if (!settings.analysisPrompt1stPerson) {
         settings.analysisPrompt1stPerson = getDefault1stPersonPrompt();
+    }
+    if (!settings.analysisPromptCommunity) {
+        settings.analysisPromptCommunity = getDefaultCommunityPrompt();
     }
     if (!settings.analysisMode) {
         settings.analysisMode = '1st-person';
@@ -1197,6 +1264,7 @@ async function showAnalysisSettingsModal() {
     const currentMode = settings.analysisMode;
     const current3rdPrompt = settings.analysisPrompt3rdPerson;
     const current1stPrompt = settings.analysisPrompt1stPerson;
+    const currentCommunityPrompt = settings.analysisPromptCommunity;
     const currentPrefillText = settings.prefillText;
     
     const popup = new Popup(`
@@ -1219,11 +1287,12 @@ async function showAnalysisSettingsModal() {
                         transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
+                        justify-content: center;
                         gap: 8px;
                     ">
                         <input type="radio" name="analysis-mode" value="1st-person" ${currentMode === '1st-person' ? 'checked' : ''}
                             style="cursor: pointer;">
-                        <span style="color: #ddd; font-weight: 500;">1인칭 분석</span>
+                        <span style="color: #ddd; font-weight: 500;">1인칭</span>
                     </label>
                     <label id="charanalysis-label-3rd" style="
                         flex: 1;
@@ -1235,11 +1304,29 @@ async function showAnalysisSettingsModal() {
                         transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
+                        justify-content: center;
                         gap: 8px;
                     ">
                         <input type="radio" name="analysis-mode" value="3rd-person" ${currentMode === '3rd-person' ? 'checked' : ''} 
                             style="cursor: pointer;">
-                        <span style="color: #ddd; font-weight: 500;">3인칭 분석</span>
+                        <span style="color: #ddd; font-weight: 500;">3인칭</span>
+                    </label>
+                    <label id="charanalysis-label-community" style="
+                        flex: 1;
+                        padding: 12px;
+                        border-radius: 6px;
+                        border: 2px solid ${currentMode === 'community' ? '#9575cd' : 'rgba(255,255,255,0.1)'};
+                        background: ${currentMode === 'community' ? 'rgba(149, 117, 205, 0.2)' : 'rgba(255,255,255,0.05)'};
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                    ">
+                        <input type="radio" name="analysis-mode" value="community" ${currentMode === 'community' ? 'checked' : ''} 
+                            style="cursor: pointer;">
+                        <span style="color: #ddd; font-weight: 500;">커뮤니티</span>
                     </label>
                 </div>
             </div>
@@ -1320,6 +1407,44 @@ async function showAnalysisSettingsModal() {
                 " placeholder="3인칭 분석 프롬프트를 입력하세요...">${current3rdPrompt}</textarea>
             </div>
             
+            <div id="charanalysis-prompt-community" style="display: ${currentMode === 'community' ? 'block' : 'none'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="color: #aaa; font-size: 0.95em; font-weight: 500; margin: 0;">
+                        <i class="fa-solid fa-file-lines" style="margin-right: 6px; color: #ff9966;"></i>
+                        커뮤니티 분석 프롬프트
+                    </label>
+                    <button type="button" id="charanalysis-reset-community-btn" style="
+                        padding: 6px 12px;
+                        background: rgba(255, 153, 102, 0.2);
+                        border: 1px solid rgba(255, 153, 102, 0.4);
+                        border-radius: 4px;
+                        color: #ff9966;
+                        font-size: 0.85em;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    " onmouseover="this.style.background='rgba(255, 153, 102, 0.3)';" onmouseout="this.style.background='rgba(255, 153, 102, 0.2)';">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        기본값으로 리셋
+                    </button>
+                </div>
+                <textarea id="charanalysis-prompt-community-textarea" style="
+                    width: 100%;
+                    min-height: 300px;
+                    padding: 12px;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(255, 153, 102, 0.3);
+                    border-radius: 6px;
+                    color: #ddd;
+                    font-family: 'Consolas', 'Monaco', monospace;
+                    font-size: 0.85em;
+                    line-height: 1.5;
+                    resize: vertical;
+                " placeholder="커뮤니티 분석 프롬프트를 입력하세요...">${currentCommunityPrompt}</textarea>
+            </div>
+            
             <div style="
                 padding: 16px;
                 background: rgba(102, 204, 153, 0.1);
@@ -1395,6 +1520,7 @@ async function showAnalysisSettingsModal() {
     let savedMode = currentMode;
     let savedPrompt3rd = current3rdPrompt;
     let savedPrompt1st = current1stPrompt;
+    let savedPromptCommunity = currentCommunityPrompt;
     let savedIncludeDescription = settings.includeCharacterDescription !== false;
     let savedUsePrefill = settings.usePrefill !== false;
     let savedPrefillText = currentPrefillText;
@@ -1403,17 +1529,22 @@ async function showAnalysisSettingsModal() {
     setTimeout(() => {
         const reset3rdBtn = document.getElementById('charanalysis-reset-3rd-btn');
         const reset1stBtn = document.getElementById('charanalysis-reset-1st-btn');
+        const resetCommunityBtn = document.getElementById('charanalysis-reset-community-btn');
         const textarea3rd = document.getElementById('charanalysis-prompt-3rd-textarea');
         const textarea1st = document.getElementById('charanalysis-prompt-1st-textarea');
+        const textareaCommunity = document.getElementById('charanalysis-prompt-community-textarea');
         const includeDescCheckbox = document.getElementById('charanalysis-include-desc');
         const usePrefillCheckbox = document.getElementById('charanalysis-use-prefill');
         const prefillTextarea = document.getElementById('charanalysis-prefill-textarea');
         const label3rd = document.getElementById('charanalysis-label-3rd');
         const label1st = document.getElementById('charanalysis-label-1st');
+        const labelCommunity = document.getElementById('charanalysis-label-community');
         const prompt3rdDiv = document.getElementById('charanalysis-prompt-3rd');
         const prompt1stDiv = document.getElementById('charanalysis-prompt-1st');
+        const promptCommunityDiv = document.getElementById('charanalysis-prompt-community');
         const radio3rd = document.querySelector('input[name="analysis-mode"][value="3rd-person"]');
         const radio1st = document.querySelector('input[name="analysis-mode"][value="1st-person"]');
+        const radioCommunity = document.querySelector('input[name="analysis-mode"][value="community"]');
         
         // Update saved values whenever inputs change
         if (textarea3rd) {
@@ -1425,6 +1556,12 @@ async function showAnalysisSettingsModal() {
         if (textarea1st) {
             textarea1st.addEventListener('input', () => {
                 savedPrompt1st = textarea1st.value;
+            });
+        }
+        
+        if (textareaCommunity) {
+            textareaCommunity.addEventListener('input', () => {
+                savedPromptCommunity = textareaCommunity.value;
             });
         }
         
@@ -1448,22 +1585,31 @@ async function showAnalysisSettingsModal() {
         
         // Function to update label styles
         function updateLabels(selectedMode) {
-            if (label3rd && label1st) {
-                if (selectedMode === '3rd-person') {
-                    label3rd.style.border = '2px solid #9575cd';
-                    label3rd.style.background = 'rgba(149, 117, 205, 0.2)';
-                    label1st.style.border = '2px solid rgba(255,255,255,0.1)';
-                    label1st.style.background = 'rgba(255,255,255,0.05)';
-                } else {
+            if (label3rd && label1st && labelCommunity) {
+                // Reset all labels
+                label1st.style.border = '2px solid rgba(255,255,255,0.1)';
+                label1st.style.background = 'rgba(255,255,255,0.05)';
+                label3rd.style.border = '2px solid rgba(255,255,255,0.1)';
+                label3rd.style.background = 'rgba(255,255,255,0.05)';
+                labelCommunity.style.border = '2px solid rgba(255,255,255,0.1)';
+                labelCommunity.style.background = 'rgba(255,255,255,0.05)';
+                
+                // Set selected label
+                if (selectedMode === '1st-person') {
                     label1st.style.border = '2px solid #9575cd';
                     label1st.style.background = 'rgba(149, 117, 205, 0.2)';
-                    label3rd.style.border = '2px solid rgba(255,255,255,0.1)';
-                    label3rd.style.background = 'rgba(255,255,255,0.05)';
+                } else if (selectedMode === '3rd-person') {
+                    label3rd.style.border = '2px solid #9575cd';
+                    label3rd.style.background = 'rgba(149, 117, 205, 0.2)';
+                } else if (selectedMode === 'community') {
+                    labelCommunity.style.border = '2px solid #9575cd';
+                    labelCommunity.style.background = 'rgba(149, 117, 205, 0.2)';
                 }
             }
-            if (prompt3rdDiv && prompt1stDiv) {
+            if (prompt3rdDiv && prompt1stDiv && promptCommunityDiv) {
                 prompt3rdDiv.style.display = selectedMode === '3rd-person' ? 'block' : 'none';
                 prompt1stDiv.style.display = selectedMode === '1st-person' ? 'block' : 'none';
+                promptCommunityDiv.style.display = selectedMode === 'community' ? 'block' : 'none';
             }
         }
         
@@ -1481,6 +1627,14 @@ async function showAnalysisSettingsModal() {
                 if (radio1st.checked) {
                     updateLabels('1st-person');
                     savedMode = '1st-person';
+                }
+            });
+        }
+        if (radioCommunity) {
+            radioCommunity.addEventListener('change', () => {
+                if (radioCommunity.checked) {
+                    updateLabels('community');
+                    savedMode = 'community';
                 }
             });
         }
@@ -1507,11 +1661,22 @@ async function showAnalysisSettingsModal() {
                 toastr.info('1인칭 프롬프트가 기본값으로 리셋되었습니다.');
             });
         }
+        
+        if (resetCommunityBtn && textareaCommunity) {
+            resetCommunityBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const defaultPrompt = getDefaultCommunityPrompt();
+                textareaCommunity.value = defaultPrompt;
+                savedPromptCommunity = defaultPrompt; // Update saved value immediately
+                toastr.info('커뮤니티 프롬프트가 기본값으로 리셋되었습니다.');
+            });
+        }
     }, 200);
     
     popup.show().then((result) => {
         if (result === POPUP_RESULT.AFFIRMATIVE) {
-            if (!savedMode || !savedPrompt3rd || !savedPrompt1st) {
+            if (!savedMode || !savedPrompt3rd || !savedPrompt1st || !savedPromptCommunity) {
                 toastr.error('설정 저장 중 오류가 발생했습니다.');
                 return;
             }
@@ -1521,6 +1686,7 @@ async function showAnalysisSettingsModal() {
             currentSettings.analysisMode = savedMode;
             currentSettings.analysisPrompt3rdPerson = savedPrompt3rd;
             currentSettings.analysisPrompt1stPerson = savedPrompt1st;
+            currentSettings.analysisPromptCommunity = savedPromptCommunity;
             currentSettings.includeCharacterDescription = savedIncludeDescription;
             currentSettings.usePrefill = savedUsePrefill;
             currentSettings.prefillText = savedPrefillText;
@@ -1782,6 +1948,9 @@ async function analyzeCharacter(characterId, avatarUrl, mode = 'auto', selectedC
         if (!settings.analysisPrompt1stPerson) {
             settings.analysisPrompt1stPerson = getDefault1stPersonPrompt();
         }
+        if (!settings.analysisPromptCommunity) {
+            settings.analysisPromptCommunity = getDefaultCommunityPrompt();
+        }
         if (!settings.analysisMode) {
             settings.analysisMode = '1st-person';
         }
@@ -1790,9 +1959,16 @@ async function analyzeCharacter(characterId, avatarUrl, mode = 'auto', selectedC
         }
         
         // Select prompt based on mode
-        let basePrompt = settings.analysisMode === '1st-person' 
-            ? settings.analysisPrompt1stPerson 
-            : settings.analysisPrompt3rdPerson;
+        let basePrompt;
+        if (settings.analysisMode === '1st-person') {
+            basePrompt = settings.analysisPrompt1stPerson;
+        } else if (settings.analysisMode === '3rd-person') {
+            basePrompt = settings.analysisPrompt3rdPerson;
+        } else if (settings.analysisMode === 'community') {
+            basePrompt = settings.analysisPromptCommunity;
+        } else {
+            basePrompt = settings.analysisPrompt1stPerson; // fallback
+        }
         
         // Replace {characterName} placeholder with actual character name
         basePrompt = basePrompt.replace(/{characterName}/g, characterName);
@@ -1815,10 +1991,10 @@ ${character.description}
         
         const analysisPrompt = `여기에 ${characterName}를 주인공으로 만들어진 다양한 평행세계 속 이야기들이 있습니다.
 ${descriptionSection}
-채팅 데이터:
+평행세계 이야기 데이터:
 
 ${chatSummaries.map((chat, idx) => `
-=== 이야기 #${idx + 1}: ${chat.fileName} (${chat.messageCount}개 메시지) ===
+=== 평행세계 #${idx + 1}: ${chat.fileName} (${chat.messageCount}개 메시지) ===
 ${chat.content}
 `).join('\n\n')}
 
@@ -1947,11 +2123,6 @@ ${basePrompt}`;
         
         if (!analysisResult) {
             throw new Error('AI 응답이 비어있습니다.');
-        }
-        
-        // Add prefill text to the beginning if it was used
-        if (settings.usePrefill && settings.prefillText) {
-            analysisResult = settings.prefillText + '\n\n' + analysisResult;
         }
         
         // Format and display result with proper styling

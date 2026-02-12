@@ -18,6 +18,8 @@ const defaultSettings = {
     analysisPrompt1stPerson: '', // Will be set with default later
     analysisPrompt3rdPerson: '', // Will be set with default later
     includeCharacterDescription: true, // Include character description in analysis
+    usePrefill: true, // Use prefill for assistant response
+    prefillText: '네 알겠습니다. 다음은 제공된 모든 이야기 데이터를 분석하여 작성한 요청하신 콘텐츠입니다.\n---', // Prefill text
 };
 
 // =========================
@@ -1185,10 +1187,17 @@ async function showAnalysisSettingsModal() {
     if (settings.includeCharacterDescription === undefined) {
         settings.includeCharacterDescription = true;
     }
+    if (settings.usePrefill === undefined) {
+        settings.usePrefill = true;
+    }
+    if (!settings.prefillText) {
+        settings.prefillText = '네 알겠습니다. 다음은 제공된 모든 이야기 데이터를 분석하여 작성한 요청하신 콘텐츠입니다.\n---';
+    }
     
     const currentMode = settings.analysisMode;
     const current3rdPrompt = settings.analysisPrompt3rdPerson;
     const current1stPrompt = settings.analysisPrompt1stPerson;
+    const currentPrefillText = settings.prefillText;
     
     const popup = new Popup(`
         <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -1331,6 +1340,48 @@ async function showAnalysisSettingsModal() {
                     분석 시 캐릭터의 기본 설명(description)을 AI에게 제공합니다
                 </div>
             </div>
+            
+            <div style="
+                padding: 16px;
+                background: rgba(255, 170, 102, 0.1);
+                border-radius: 8px;
+                border-left: 4px solid #ffaa66;
+            ">
+                <label style="
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    cursor: pointer;
+                    margin-bottom: 12px;
+                ">
+                    <input type="checkbox" id="charanalysis-use-prefill" ${settings.usePrefill !== false ? 'checked' : ''} 
+                        style="cursor: pointer;">
+                    <span style="color: #ddd; font-weight: 500;">프리필 사용하기</span>
+                </label>
+                <div style="font-size: 0.85em; color: #888; margin-bottom: 12px; margin-left: 30px;">
+                    AI의 응답 시작 부분을 미리 지정합니다
+                </div>
+                
+                <div style="margin-left: 0;">
+                    <label style="color: #aaa; font-size: 0.95em; font-weight: 500; margin-bottom: 8px; display: block;">
+                        <i class="fa-solid fa-comment-dots" style="margin-right: 6px; color: #ffaa66;"></i>
+                        프리필 텍스트
+                    </label>
+                    <textarea id="charanalysis-prefill-textarea" style="
+                        width: 100%;
+                        min-height: 80px;
+                        padding: 12px;
+                        background: rgba(0, 0, 0, 0.3);
+                        border: 1px solid rgba(255, 170, 102, 0.3);
+                        border-radius: 6px;
+                        color: #ddd;
+                        font-family: 'Consolas', 'Monaco', monospace;
+                        font-size: 0.85em;
+                        line-height: 1.5;
+                        resize: vertical;
+                    " placeholder="프리필 텍스트를 입력하세요...">${currentPrefillText}</textarea>
+                </div>
+            </div>
         </div>
     `, POPUP_TYPE.CONFIRM, null, {
         okButton: '저장',
@@ -1344,6 +1395,8 @@ async function showAnalysisSettingsModal() {
     let savedPrompt3rd = current3rdPrompt;
     let savedPrompt1st = current1stPrompt;
     let savedIncludeDescription = settings.includeCharacterDescription !== false;
+    let savedUsePrefill = settings.usePrefill !== false;
+    let savedPrefillText = currentPrefillText;
     
     // Add event listeners after popup is shown
     setTimeout(() => {
@@ -1352,6 +1405,8 @@ async function showAnalysisSettingsModal() {
         const textarea3rd = document.getElementById('charanalysis-prompt-3rd-textarea');
         const textarea1st = document.getElementById('charanalysis-prompt-1st-textarea');
         const includeDescCheckbox = document.getElementById('charanalysis-include-desc');
+        const usePrefillCheckbox = document.getElementById('charanalysis-use-prefill');
+        const prefillTextarea = document.getElementById('charanalysis-prefill-textarea');
         const label3rd = document.getElementById('charanalysis-label-3rd');
         const label1st = document.getElementById('charanalysis-label-1st');
         const prompt3rdDiv = document.getElementById('charanalysis-prompt-3rd');
@@ -1375,6 +1430,18 @@ async function showAnalysisSettingsModal() {
         if (includeDescCheckbox) {
             includeDescCheckbox.addEventListener('change', () => {
                 savedIncludeDescription = includeDescCheckbox.checked;
+            });
+        }
+        
+        if (usePrefillCheckbox) {
+            usePrefillCheckbox.addEventListener('change', () => {
+                savedUsePrefill = usePrefillCheckbox.checked;
+            });
+        }
+        
+        if (prefillTextarea) {
+            prefillTextarea.addEventListener('input', () => {
+                savedPrefillText = prefillTextarea.value;
             });
         }
         
@@ -1454,6 +1521,8 @@ async function showAnalysisSettingsModal() {
             currentSettings.analysisPrompt3rdPerson = savedPrompt3rd;
             currentSettings.analysisPrompt1stPerson = savedPrompt1st;
             currentSettings.includeCharacterDescription = savedIncludeDescription;
+            currentSettings.usePrefill = savedUsePrefill;
+            currentSettings.prefillText = savedPrefillText;
             
             // Save settings
             saveSettingsDebounced();
@@ -1803,11 +1872,18 @@ ${basePrompt}${descriptionSection}`;
         `;
         
         // Prepare request parameters
+        const messages = [
+            { role: 'user', content: analysisPrompt }
+        ];
+        
+        // Add prefill if enabled
+        if (settings.usePrefill && settings.prefillText) {
+            messages.push({ role: 'assistant', content: settings.prefillText });
+        }
+        
         const requestParams = {
             model: selectedModel,
-            messages: [
-                { role: 'user', content: analysisPrompt }
-            ],
+            messages: messages,
             temperature: 0.7,
             max_tokens: 16000,
             stream: false,
@@ -1871,6 +1947,11 @@ ${basePrompt}${descriptionSection}`;
         
         if (!analysisResult) {
             throw new Error('AI 응답이 비어있습니다.');
+        }
+        
+        // Add prefill text to the beginning if it was used
+        if (settings.usePrefill && settings.prefillText) {
+            analysisResult = settings.prefillText + '\n\n' + analysisResult;
         }
         
         // Format and display result with proper styling

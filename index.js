@@ -681,6 +681,7 @@ function formatStatisticsHTML(stats, character, characterId) {
                         " onmouseover="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(138, 180, 248, 0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(138, 180, 248, 0.3)';">
                             <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                             <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
+                            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
                         </select>
                     </div>
                     
@@ -1810,7 +1811,8 @@ async function analyzeCharacter(characterId, avatarUrl, mode = 'auto', selectedC
             'gemini-2.0-flash': 1000000,
             'gemini-2.5-flash': 1000000,
             'gemini-2.5-flash-lite': 1000000,
-            'gemini-3-flash-preview': 1000000
+            'gemini-3-flash-preview': 1000000,
+            'gemini-3.5-flash': 1000000
         };
         
         const maxContextTokens = modelContextLimits[selectedModel] || 1000000;
